@@ -20,7 +20,7 @@ html, body {
   border: 2px solid darkcyan;
   border-radius:  5px;
 }
-#mainlist {
+.mainlist {
   display: inline-block;
 }
 .submitbutton {

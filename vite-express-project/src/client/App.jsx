@@ -1,111 +1,129 @@
-import React from 'react';
-
+import React, { useEffect, useState } from 'react';
 // we could place this Todo component in a separate file, but it's
 // small enough to alternatively just include it in our App.js file.
-
-class Todo extends React.Component {
-  // our .render() method creates a block of HTML using the .jsx format
-  render() { //update this with the correct fields
-    return <li class="listli">{this.props.name} : 
-      <input
-        type="checkbox"
-        defaultChecked={this.props.completed}
-        onChange={ e => this.change(e) }
-      />
+function Todo({item, count, cost, id, deleteE}) {
+    return <li className="listli"> {item + " x " + count + " = $" + (cost * count)} 
+    <button className="itembutton" id={id} onClick={e => deleteE(e, id)}>
+      X
+    </button>
     </li>
-  }
-  // call this method when the checkbox for this component is clicked
-  change(e) {
-    this.props.onclick( this.props.name, e.target.checked )
-  }
 }
+// class Todo extends React.Component {
+//   // our .render() method creates a block of HTML using the .jsx format
+//   render() { //update this with the correct fields
+//     return <li class="listli"> {this.item + " x " + this.count + " = $" + (this.cost * this.count)} 
+//     <button class="itembutton" id="{this.id}" onClick={delete(this.id)}>
+//       X
+//     </button>
+//     </li>
+//   }
+//   // call this method when the checkbox for this component is clicked
+// }
 
 // main component
-class App extends React.Component {
-  constructor( props ) {
-    super( props )
-    // initialize our state
-    this.state = { todos:[] }
+function App() {
+
+const [todo, setTodo] = useState([])
+const [total, setTotal] = useState(0)
+
+useEffect(function(){
+  load()
+}, []
+)
+useEffect(function(){
+  //handle the total and stuff
+
+  let localTotal = 0
+
+  for(let i = 0; i < todo.length; i++){
+
+    localTotal += (todo[i].count * todo[i].cost)
   }
 
-  componentDidMount() {
-    this.load()
-  }
+  setTotal(localTotal)
+  
+}, [todo])
+
 
   // load in our data from the server
-  load() {
+  function load() {
     fetch( '/read', { method:'get', 'no-cors':true })
       .then( response => response.json() )
       .then( json => {
-         this.setState({ todos:json }) 
+         setTodo(json)
       })
   }
-  
- // when an Todo is toggled, send data to server
-  toggle( name, completed ) {
-    fetch( '/change', {
-      method:'POST',
-      body: JSON.stringify({ name, completed }),
-      headers: { 'Content-Type': 'application/json' }
-    })
-  }
- 
+   
   // add a new todo list item
-  add( evt ) {
-    const value = document.querySelector('input').value
+  function add( evt ) {
+    evt.preventDefault()
+    const item = document.querySelector('#item').value
+    const cost = document.querySelector('#cost').value
+    const count = document.querySelector('#count').value
 
     fetch( '/add', { 
       method:'POST',
-      body: JSON.stringify({ name:value, completed:false }),
+      body: JSON.stringify({ item:item , cost:cost, count: count, id: crypto.randomUUID() }),
       headers: { 'Content-Type': 'application/json' }
     })
     .then( response => response.json() )
     .then( json => {
        // changing state triggers reactive behaviors
-       this.setState({ todos:json }) 
+       setTodo(json) 
     })
   }
   //delete route here
-  delete( evt){
+  function deleteEntry( evt, id ){
+    evt.preventDefault()
     //get the values with query selector
-    const value = document.querySelector('input').value
     fetch('/delete', {
       method:'POST',
-      body: JSON.stringify({ name:value, completed:false }), //update this with correct fields
+      body: JSON.stringify({ id:id }), //update this with correct fields
       headers: { 'Content-Type': 'application/json' }
+    })
+    .then( response => response.json() )
+    .then( json => {
+       // changing state triggers reactive behaviors
+       setTodo(json) 
     })
   }
 
   // render component HTML using JSX 
-  render() {
+
     return (
       <div className="App">
-      <h1 id="title" class="titles">
+      <h1 id="title" className="titles">
       Shopping List
       </h1>
-      <form class="form1" method="POST">
-        <input class="listinput" type='text' id='item' placeholder='Item?'/>
+      <form className="form1" method="POST">
+        <input className="listinput" type='text' id='item' placeholder='Item?'/>
         <br></br>
-        <input class="listinput" id='cost' placeholder='Cost? $' type="number" min="0"/>
+        <input className="listinput" id='cost' placeholder='Cost? $' type="number" min="0"/>
         <br></br>
-        <input class="listinput" id='count' placeholder='How many?' type="number" name="quantity" min="0" step="1"/>
+        <input className="listinput" id='count' placeholder='How many?' type="number" name="quantity" min="0" step="1"/>
         <br></br>
-        <button class="submitbutton" onClick={ e => this.add( e )}>Submit</button>
+        <button className="submitbutton" onClick={ e => add( e )}>Submit</button>
       </form>
-        <ul class="mainlist">
+             {
+        todo.length != 0  ?  <h2 id="tdisp" className="titles"> Total is ${total} </h2> : ""
+       }
+        <ul className="mainlist">
           {/* ensure that this todo has the correct fields */}
-          { this.state.todos.map( (todo,i) => 
+          { todo.map( (t,i) => 
             <Todo
               key={i}
-              name={todo.name}
-              completed={todo.completed}
-              onclick={ this.toggle }
+              item={t.item}
+              count = {t.count}
+              cost = {t.cost}
+              id = {t.id}
+              deleteE={deleteEntry}
             /> ) }
        </ul> 
-      <h2 hidden id="tdisp" class="titles"></h2>
+
+      
       </div>
     )
   }
-}
+
 
 export default App

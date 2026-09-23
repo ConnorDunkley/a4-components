@@ -17,11 +17,16 @@ app.post( '/add', ( req,res ) => { //submit
 })
 
 app.post('/delete', (req, res) => {
-  for(let i = 0; i < appdata.length; i++){
-    if(todos[i].id === req.body.id){ //ensure todo has id field
+  // console.log("Reached delete route server side")
+  // console.log(todos)
+  // console.log(req.body.id)
+  for(let i = 0; i < todos.length; i++){
+    if(todos[i].id === req.body.id){ //req.body should contain id field
         todos.splice(i, 1)
       }
   }
+  
+  res.json( todos )
 })
 
 ViteExpress.listen( app, 3000 )
