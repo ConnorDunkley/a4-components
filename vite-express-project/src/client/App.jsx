@@ -8,17 +8,7 @@ function Todo({item, count, cost, id, deleteE}) {
     </button>
     </li>
 }
-// class Todo extends React.Component {
-//   // our .render() method creates a block of HTML using the .jsx format
-//   render() { //update this with the correct fields
-//     return <li class="listli"> {this.item + " x " + this.count + " = $" + (this.cost * this.count)} 
-//     <button class="itembutton" id="{this.id}" onClick={delete(this.id)}>
-//       X
-//     </button>
-//     </li>
-//   }
-//   // call this method when the checkbox for this component is clicked
-// }
+
 
 // main component
 function App() {
@@ -68,14 +58,14 @@ useEffect(function(){
     })
     .then( response => response.json() )
     .then( json => {
-       // changing state triggers reactive behaviors
+
        setTodo(json) 
     })
   }
   //delete route here
   function deleteEntry( evt, id ){
     evt.preventDefault()
-    //get the values with query selector
+
     fetch('/delete', {
       method:'POST',
       body: JSON.stringify({ id:id }), //update this with correct fields
@@ -83,7 +73,7 @@ useEffect(function(){
     })
     .then( response => response.json() )
     .then( json => {
-       // changing state triggers reactive behaviors
+
        setTodo(json) 
     })
   }

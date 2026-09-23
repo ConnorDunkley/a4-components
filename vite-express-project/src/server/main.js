@@ -17,11 +17,8 @@ app.post( '/add', ( req,res ) => { //submit
 })
 
 app.post('/delete', (req, res) => {
-  // console.log("Reached delete route server side")
-  // console.log(todos)
-  // console.log(req.body.id)
   for(let i = 0; i < todos.length; i++){
-    if(todos[i].id === req.body.id){ //req.body should contain id field
+    if(todos[i].id === req.body.id){
         todos.splice(i, 1)
       }
   }
